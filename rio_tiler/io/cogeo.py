@@ -299,6 +299,7 @@ class COGReader(BaseReader):
         tile_y: int,
         tile_z: int,
         tilesize: int = 256,
+        aoi: Optional[Dict] = None,
         indexes: Optional[Indexes] = None,
         expression: Optional[str] = None,
         tile_buffer: Optional[NumType] = None,
@@ -310,6 +311,7 @@ class COGReader(BaseReader):
             tile_x (int): Tile's horizontal index.
             tile_y (int): Tile's vertical index.
             tile_z (int): Tile's zoom level index.
+            aoi (dict, optional): GeoJson area of interest.
             tilesize (int, optional): Output image size. Defaults to `256`.
             indexes (int or sequence of int, optional): Band indexes.
             expression (str, optional): rio-tiler expression (e.g. b1/b2+b3).
@@ -345,6 +347,24 @@ class COGReader(BaseReader):
 
             # Buffered Tile Size
             tilesize += int(tile_buffer * 2)
+
+        if aoi is not None:
+            cutline = create_cutline(self.dataset, aoi, geometry_crs="epsg:4326")
+            vrt_options = kwargs.pop("vrt_options", {})
+            vrt_options.update({"cutline": cutline})
+
+            return self.part(
+                tile_bounds,
+                dst_crs=self.tms.rasterio_crs,
+                bounds_crs=None,
+                height=tilesize,
+                width=tilesize,
+                max_size=None,
+                indexes=indexes,
+                expression=expression,
+                vrt_options=vrt_options,
+                **kwargs,
+            )
 
         return self.part(
             tile_bounds,
