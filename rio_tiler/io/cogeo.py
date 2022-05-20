@@ -348,23 +348,10 @@ class COGReader(BaseReader):
             # Buffered Tile Size
             tilesize += int(tile_buffer * 2)
 
+        vrt_options = kwargs.pop("vrt_options", {})
         if aoi is not None:
             cutline = create_cutline(self.dataset, aoi, geometry_crs="epsg:4326")
-            vrt_options = kwargs.pop("vrt_options", {})
             vrt_options.update({"cutline": cutline})
-
-            return self.part(
-                tile_bounds,
-                dst_crs=self.tms.rasterio_crs,
-                bounds_crs=None,
-                height=tilesize,
-                width=tilesize,
-                max_size=None,
-                indexes=indexes,
-                expression=expression,
-                vrt_options=vrt_options,
-                **kwargs,
-            )
 
         return self.part(
             tile_bounds,
@@ -375,6 +362,7 @@ class COGReader(BaseReader):
             max_size=None,
             indexes=indexes,
             expression=expression,
+            vrt_options=vrt_options,
             **kwargs,
         )
 
