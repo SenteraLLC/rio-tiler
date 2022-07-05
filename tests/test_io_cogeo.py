@@ -145,6 +145,45 @@ def test_info_valid():
         assert meta.nodata_type == "Nodata"
 
 
+def test_tile_aoi():
+    with COGReader(COG_NODATA) as cog:
+        feature = {
+            "type": "Feature",
+            "properties": {},
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [-56.4697265625, 74.17307693616263],
+                        [-57.667236328125, 73.53462847039683],
+                        [-57.59033203125, 73.13451013251789],
+                        [-56.195068359375, 72.94865294642922],
+                        [-54.964599609375, 72.96797135377102],
+                        [-53.887939453125, 73.84623016391944],
+                        [-53.97583007812499, 74.0165183926664],
+                        [-54.73388671875, 74.23289305339864],
+                        [-55.54687499999999, 74.2269213699517],
+                        [-56.129150390625, 74.21497138945001],
+                        [-56.2060546875, 74.21198251594369],
+                        [-56.4697265625, 74.17307693616263],
+                    ]
+                ],
+            },
+        }
+        # Successful None case.
+        img = cog.tile(43, 24, 7, aoi=None)
+        assert img.data.shape == (1, 256, 256)
+
+        img = cog.tile(43, 24, 7, aoi=feature)
+        assert img.data.shape == (1, 256, 256)
+        assert img.band_names == ["1"]
+
+        # Expression - This COG has 2 bands.
+        img = cog.tile(43, 24, 7, aoi=feature, expression="b1*2;b1-100")
+        assert img.data.shape == (2, 256, 256)
+        assert img.band_names == ["b1*2", "b1-100"]
+
+
 def test_tile_valid_default():
     """Should return a 3 bands array and a full valid mask."""
     with COGReader(COG_NODATA) as cog:
