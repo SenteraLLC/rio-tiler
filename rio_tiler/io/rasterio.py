@@ -310,6 +310,7 @@ class Reader(BaseReader):
         tile_y: int,
         tile_z: int,
         tilesize: int = 256,
+        aoi: Optional[Dict] = None,
         indexes: Optional[Indexes] = None,
         expression: Optional[str] = None,
         buffer: Optional[float] = None,
@@ -322,6 +323,7 @@ class Reader(BaseReader):
             tile_y (int): Tile's vertical index.
             tile_z (int): Tile's zoom level index.
             tilesize (int, optional): Output image size. Defaults to `256`.
+            aoi (dict, optional): GeoJson area of interest.
             indexes (int or sequence of int, optional): Band indexes.
             expression (str, optional): rio-tiler expression (e.g. b1/b2+b3).
             buffer (float, optional): Buffer on each side of the given tile. It must be a multiple of `0.5`. Output **tilesize** will be expanded to `tilesize + 2 * tile_buffer` (e.g 0.5 = 257x257, 1.0 = 258x258).
@@ -338,6 +340,11 @@ class Reader(BaseReader):
 
         tile_bounds = self.tms.xy_bounds(Tile(x=tile_x, y=tile_y, z=tile_z))
 
+        vrt_options = kwargs.pop("vrt_options", {})
+        if aoi is not None:
+            cutline = create_cutline(self.dataset, aoi, geometry_crs="epsg:4326")
+            vrt_options.update({"cutline": cutline})
+
         return self.part(
             tile_bounds,
             dst_crs=self.tms.rasterio_crs,
@@ -348,6 +355,7 @@ class Reader(BaseReader):
             indexes=indexes,
             expression=expression,
             buffer=buffer,
+            vrt_options=vrt_options,
             **kwargs,
         )
 
