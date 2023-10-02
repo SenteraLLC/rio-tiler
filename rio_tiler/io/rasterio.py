@@ -35,7 +35,7 @@ from rio_tiler.expression import parse_expression
 from rio_tiler.io.base import BaseReader
 from rio_tiler.models import BandStatistics, ImageData, Info, PointData
 from rio_tiler.types import BBox, Indexes, NumType, RIOResampling
-from rio_tiler.utils import _validate_shape_input, has_alpha_band, has_mask_band
+from rio_tiler.utils import _validate_shape_input, create_cutline, has_alpha_band, has_mask_band
 
 
 @attr.s
