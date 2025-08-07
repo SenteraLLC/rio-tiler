@@ -151,6 +151,7 @@ def read(
                 "add_alpha": True,
                 "resampling": warp_resampling,
                 "dtype": src_dst.dtypes[0],
+                "init_dest_nodata": False,
             }
 
             if nodata is not None:
