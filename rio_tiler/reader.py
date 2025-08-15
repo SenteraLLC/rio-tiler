@@ -153,7 +153,13 @@ def read(
                 "dtype": src_dst.dtypes[0],
             }
 
-            if nodata is not None:
+            if nodata is None:
+                vrt_params.update(
+                    {
+                        "init_dest_nodata": False
+                    }
+                )
+            else:
                 vrt_params.update(
                     {
                         "nodata": nodata,
